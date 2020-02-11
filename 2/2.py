@@ -99,9 +99,9 @@ def exercise1(filename):
     cod_tab = obtain_codification_table(distr, tree)
     av_length = get_average_length(cod_tab, distr)
     entropy = get_entropy(distr)
-    print("file =", filename)
-    print("entropy =", entropy)
-    print("average length =", av_length)
+    print("If file is:", filename)
+    print("The entropy equals to", entropy)
+    print("And the average length =", av_length)
     if entropy <= av_length and av_length < entropy + 1:
         print("Shannon theorem holds")
     else:
@@ -124,9 +124,9 @@ def string_to_binary(word):
 def exercise2(cod_tab, word):
     word_codified = codify(cod_tab, word)
     binary_word = string_to_binary(word)
-    print("the word", word, "is codified as:", word_codified, "using our huffman tree")
-    print("the word", word, "is codified as:", binary_word, "using standard codification")
-    print("the rate of the bits used is: ", 100 * len(word_codified) / len(binary_word), "\n")
+    print("The word", word, "is codified as:", word_codified, "using our huffman tree")
+    print("The word", word, "is codified as:", binary_word, "using standard codification")
+    print("The rate of the bits used is: ", 100 * len(word_codified) / len(binary_word), "\n")
 
 
 def decode(word, cod_tab):
@@ -149,7 +149,7 @@ def exercise3(word, cod_tab):
     if decoded_word is None:
         print("The word", word, "doesn't belong to this grammar\n")
     else:
-        print(decoded_word, "\n")
+        print("The word", word, "is decoded as:", decoded_word, "\n")
 
 
 def gini_coefficient(cod_tab, distr):
@@ -179,8 +179,8 @@ def hill_diversity(distr):
 
 
 def exercise4(cod_tab, distr):
-    print("the gini coefficient is: ", gini_coefficient(cod_tab, distr))
-    print("the hill diversity is: ", hill_diversity(distr))
+    print("The gini coefficient is: ", gini_coefficient(cod_tab, distr))
+    print("The hill diversity is: ", hill_diversity(distr))
 
 
 if __name__ == "__main__":
@@ -192,8 +192,7 @@ if __name__ == "__main__":
     exercise2(en_cod_tab, "fractal")
     exercise2(es_cod_tab, "fractal")
 
-
-    exercise3("0000111011111111111010", en_cod_tab)
-    exercise3("1111000100000000000101", en_cod_tab)
+    exercise3("0011111101111000010101", en_cod_tab)
+    exercise3("1010100001111011111100", es_cod_tab)
 
     exercise4(en_cod_tab, en_distr)
