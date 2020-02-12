@@ -149,9 +149,10 @@ def string_to_binary(word):
 def exercise2(cod_tab, word):
     word_codified = codify(cod_tab, word)
     binary_word = string_to_binary(word)
-    print("The word", word, "is codified as:", word_codified, "using our huffman tree")
-    print("The word", word, "is codified as:", binary_word, "using standard codification")
+    print("The word", word, "is codified as:", word_codified, "using our huffman tree, with length", len(word_codified))
+    print("The word", word, "is codified as:", binary_word, "using standard codification, with length", len(binary_word))
     print("The rate of the bits used is: ", 100 * len(word_codified) / len(binary_word), "\n")
+
 
 # Decodifica una palabra dada su tabla de codificacion
 def decode(word, cod_tab):
@@ -192,7 +193,7 @@ def gini_coefficient(cod_tab, distr):
     distr = distr.sort_values(by='probab', ascending=False)
     y_acum = 0
 
-    # Para calcular el indice Gini y calcular el area de la curva de Lorentz, aproximamos el area
+    # Para calcular el indice Gini y calcular el area de la curva de Lorenz, aproximamos el area
     # utilizando la regla del trapecio. Tomamos como xi las distintas probabilidades, y los yj son 
     # las longitudes acumuladas asociadas a los xi
     for _, row in distr.iterrows():
@@ -203,7 +204,6 @@ def gini_coefficient(cod_tab, distr):
         # x_j = x_{j-1} + row["prob"]
         gini += row["probab"] * (2 * y_acum + len_code)
         y_acum += len_code
-
 
     return 1 - gini/y_acum
 
@@ -229,6 +229,5 @@ if __name__ == "__main__":
     exercise2(en_cod_tab, "fractal")
     exercise2(es_cod_tab, "fractal")
 
-    exercise3("1010100001111011111100", en_cod_tab)
-
+    exercise3("0011111101111000010100", en_cod_tab)
     exercise4(en_cod_tab, en_distr)
