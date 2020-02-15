@@ -5,6 +5,7 @@ import random
 
 def f(x, r):
     return r * x * (1 - x)
+# f(x) = r*x - r*x**2; f'(x) = r*(1-2*x) <= r => no contractiva
 
 
 def eps():
