@@ -1,10 +1,11 @@
-# Practica realizada por Alejandro Hernández Cerezo y Enrique Roman Calvo
+# -*- coding: utf-8 -*-
+# Practica realizada por Alejandro Hernandez Cerezo y Enrique Roman Calvo
 import heapq
 import os
 import numpy as np
 import pandas as pd
 from collections import Counter
-
+from matplotlib import pyplot as plt
 
 def setup():
     # Carpeta donde se encuentran los archivos
@@ -65,7 +66,7 @@ def huffman_tree(distr):
     return tree
 
 
-# Obtenemos un montículo de mínimos (o cola de prioridad)
+# Obtenemos un monticulo de minimos (o cola de prioridad)
 # con los pares (probabilidad, caracter)
 def obtain_heap_from_distribution(distr):
     lis = [(prob, name) for prob, name in zip(distr['probab'], distr['states'])]
@@ -75,8 +76,8 @@ def obtain_heap_from_distribution(distr):
 
 # Dado una distribucion y un arbol, obtenemos la codificacion de los elementos
 # de la distribucion utilizando el arbol. Para ello, recorremos el arbol
-# desde las hojas a hasta la raíz y vamos reconstruyendo para cada caracter,
-# la codificación asociada.
+# desde las hojas a hasta la raiz y vamos reconstruyendo para cada caracter,
+# la codificacion asociada.
 def obtain_codification_table(distr, tree):
     # Inicializamos el diccionario con la cadena vacia para todos los caracteres
     codification = {elem: '' for elem in distr['states']}
@@ -187,7 +188,7 @@ def decode(word, cod_tab):
             branch = ""
 
     # Si el string acumulador no esta vacio, quiere decir que la palabra
-    # suministrada no pertenece a la gramática asociada a la tabla,
+    # suministrada no pertenece a la gramatica asociada a la tabla,
     # y por tanto devolvemos None
     if branch != "":
         return None
@@ -239,6 +240,17 @@ def exercise4(cod_tab, distr):
     print("The gini coefficient is:", gini_coefficient(cod_tab, distr))
     print("The hill diversity is:", hill_diversity(distr))
 
+def plot_hauffman_code(cod_tab, name):
+    sizes = [len(elem) for elem in cod_tab["code"]]
+    _, ax = plt.subplots()
+    plt.xticks(np.arange(len(cod_tab["states"])))
+    ax.set_xticklabels(cod_tab["states"])
+    plt.bar(np.arange(len(cod_tab["states"])), sizes)
+    plt.xlabel('char')
+    plt.ylabel('length of code')
+    plt.savefig(name)
+
+
 
 if __name__ == "__main__":
     setup()
@@ -249,5 +261,8 @@ if __name__ == "__main__":
     exercise2(en_cod_tab, "fractal")
     exercise2(es_cod_tab, "fractal")
 
-    exercise3(encode("secret code", en_cod_tab), en_cod_tab)
+    exercise3("0101000100010100000111011010001001110000000", en_cod_tab)
     exercise4(en_cod_tab, en_distr)
+
+    # plot_hauffman_code(en_cod_tab, 'english.png')
+    # plot_hauffman_code(es_cod_tab, 'spanish.png')
