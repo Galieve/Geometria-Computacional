@@ -7,6 +7,7 @@ import pandas as pd
 from collections import Counter
 from matplotlib import pyplot as plt
 
+
 def setup():
     # Carpeta donde se encuentran los archivos
     ubica = os.path.dirname(os.path.abspath(__file__))
@@ -240,7 +241,8 @@ def exercise4(cod_tab, distr):
     print("The gini coefficient is:", gini_coefficient(cod_tab, distr))
     print("The hill diversity is:", hill_diversity(distr))
 
-def plot_hauffman_code(cod_tab, name):
+
+def plot_huffman_code(cod_tab, name):
     sizes = [len(elem) for elem in cod_tab["code"]]
     _, ax = plt.subplots()
     plt.xticks(np.arange(len(cod_tab["states"])))
@@ -249,7 +251,6 @@ def plot_hauffman_code(cod_tab, name):
     plt.xlabel('char')
     plt.ylabel('length of code')
     plt.savefig(name)
-
 
 
 if __name__ == "__main__":
@@ -264,5 +265,5 @@ if __name__ == "__main__":
     exercise3("0101000100010100000111011010001001110000000", en_cod_tab)
     exercise4(en_cod_tab, en_distr)
 
-    # plot_hauffman_code(en_cod_tab, 'english.png')
-    # plot_hauffman_code(es_cod_tab, 'spanish.png')
+    # plot_huffman_code(en_cod_tab, 'english.png')
+    # plot_huffman_code(es_cod_tab, 'spanish.png')
