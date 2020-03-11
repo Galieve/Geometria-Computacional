@@ -44,24 +44,33 @@ def obtain_silhouette_dbscan(X, eps_range, metric):
         if clusters[-1] != 1:
             l.append(metrics.silhouette_score(X, labels))
         else:
-            l.append(-1/len(X))
+            l.append(-1)
 
     return l, clusters
 
 
 def exercise_1():
     X, labels_true = obtain_sample()
+    cmap = plt.get_cmap('nipy_spectral')
+
+    plt.scatter(X[:, 0], X[:, 1], s=5, marker='o', c=X[:, 0], cmap=cmap)
+    plt.title("Sample")
+    plt.savefig("3/Sample")
+    #plt.show()
     cluster_range = np.arange(1, 16)
 
     # For one cluster, silhouette score = -1, as bi = 0
     l = obtain_silhouette_kmeans(X, np.arange(2, 16))
-    l.insert(0, -1/len(X))
-    plt.scatter(cluster_range, l)
+    l.insert(0, -1)
+
+    plt.clf()
+    plt.scatter(cluster_range, l, c=cluster_range, cmap=cmap)
     plt.xticks(cluster_range)
     plt.title("Silhouette score per number of clusters with KMeans")
     plt.xlabel("Number of clusters")
     plt.ylabel("Silhouette score")
-    plt.show()
+    plt.savefig("3/KMeans (1,16)")
+    #plt.show()
 
 
 def exercise_2():
@@ -69,27 +78,36 @@ def exercise_2():
     metrics = ['euclidean', 'manhattan']
     eps_range = np.arange(0.1, 1.0, 0.05)
     for metric in metrics:
-        plt.clf()
         l, clusters = obtain_silhouette_dbscan(X, eps_range, metric)
-        ax = plt.gca()
-        ax.set_xticks(np.arange(1, max(clusters) + 1))
+        y_offset = np.zeros(len(clusters))
+        plt.clf()
+        # fig, axes = plt.subplots(nrows=2, ncols=1, sharey=True)
+        plt.xticks(np.arange(1, max(clusters) + 1))
         plt.scatter(clusters, l)
         plt.title("Silhouette score per number of clusters with DBSCAN and " + metric + " metric")
         plt.xlabel("Number of clusters")
         plt.ylabel("Silhouette score")
         eps_map = {}
-        for eps, xy in zip(eps_range,  zip(clusters, l)):
+        for eps, xy in zip(eps_range, zip(clusters, l)):
             if xy in eps_map:
-                eps_map[xy] += ", "+f'{eps:.2f}'
+                eps_map[xy] += ", " + f'{eps:.2f}'
             else:
                 eps_map[xy] = f'{eps:.2f}'
-        for xy in eps_map:
-            ax.annotate(eps_map[xy], xy=xy, textcoords='data')
+
+        col_labels = ['Epsilon values']
+        cell_text = []
+
+        colors = plt.cm.BuPu(np.linspace(0, 0.5, len(clusters)))
+        for val in eps_map.values():
+            cell_text.append([val])
+        plt.table(cellText=cell_text, colLabels=col_labels,
+                  loc='bottom', rowColours=colors)
+        # for xy in eps_map:
+        #     ax.annotate(eps_map[xy], xy=xy, textcoords='data')
 
         plt.show()
 
 
-
 if __name__ == "__main__":
     exercise_1()
-    exercise_2()
+    # exercise_2()
