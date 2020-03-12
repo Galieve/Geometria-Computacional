@@ -4,7 +4,7 @@ Created on Mon Feb 24 10:14:02 2020
 
 @author: usu321
 """
-
+import matplotlib
 import numpy as np
 
 from sklearn.cluster import KMeans
@@ -70,23 +70,17 @@ def exercise_1():
     plt.xlabel("Number of clusters")
     plt.ylabel("Silhouette score")
     plt.savefig("3/KMeans (1,16)")
-    #plt.show()
+    # plt.show()
 
 
 def exercise_2():
     X, labels_true = obtain_sample()
     metrics = ['euclidean', 'manhattan']
     eps_range = np.arange(0.1, 1.0, 0.05)
+
     for metric in metrics:
+
         l, clusters = obtain_silhouette_dbscan(X, eps_range, metric)
-        y_offset = np.zeros(len(clusters))
-        plt.clf()
-        # fig, axes = plt.subplots(nrows=2, ncols=1, sharey=True)
-        plt.xticks(np.arange(1, max(clusters) + 1))
-        plt.scatter(clusters, l)
-        plt.title("Silhouette score per number of clusters with DBSCAN and " + metric + " metric")
-        plt.xlabel("Number of clusters")
-        plt.ylabel("Silhouette score")
         eps_map = {}
         for eps, xy in zip(eps_range, zip(clusters, l)):
             if xy in eps_map:
@@ -94,20 +88,28 @@ def exercise_2():
             else:
                 eps_map[xy] = f'{eps:.2f}'
 
+        norm = matplotlib.colors.Normalize(0, len(eps_map) + 1)
+        colors = [plt.get_cmap('nipy_spectral')(norm(i), bytes=True) for i in np.arange(0.5, len(eps_map) + 0.5)]
+        colors = [(a / 256, b / 256, c / 256, d / 256) for a, b, c, d in colors]
         col_labels = ['Epsilon values']
-        cell_text = []
+        cell_text = [[val] for val in eps_map.values()]
+        fig, axs = plt.subplots(2, 1)
 
-        colors = plt.cm.BuPu(np.linspace(0, 0.5, len(clusters)))
-        for val in eps_map.values():
-            cell_text.append([val])
-        plt.table(cellText=cell_text, colLabels=col_labels,
-                  loc='bottom', rowColours=colors)
-        # for xy in eps_map:
-        #     ax.annotate(eps_map[xy], xy=xy, textcoords='data')
+        fig.patch.set_visible(False)
+        fig.suptitle("Silhouette score per number of clusters with DBSCAN and " + metric + " metric")
+        axs[1].axis('off')
+        axs[1].axis('tight')
+        axs[1].table(cellText=cell_text, colLabels=col_labels,
+                                 rowColours=colors, loc='center')
+        xy_ = eps_map.keys()
+        axs[0].scatter([x for x, _ in xy_], [y for _, y in xy_], s=25, marker='o', c=colors)
+        axs[0].set_xlabel("Number of clusters")
+        axs[0].set_ylabel("Silhouette score")
 
-        plt.show()
+        plt.savefig('3/DBSCAN with '+metric+' metric')
+        # plt.show()
 
 
 if __name__ == "__main__":
     exercise_1()
-    # exercise_2()
+    exercise_2()
