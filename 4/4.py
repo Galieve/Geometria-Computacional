@@ -23,10 +23,12 @@ import matplotlib.pyplot as plt
 from scipy.io import netcdf as nc
 from sklearn.decomposition import PCA
 
+
 # Establecemos como directorio la carpeta de este archivo.
 def setup():
     workpath = os.path.dirname(os.path.abspath(__file__))
     os.chdir(workpath)
+
 
 # Devolvemos un archivo en la ruta relativa adecuada.
 def open_file(filename):
@@ -60,6 +62,8 @@ def exercise1():
     lons = get_values(f, 'lon')
     hgt = get_values(f, 'hgt')
     level = get_values(f, 'level')
+    scale_factor = f.variables['hgt'].scale_factor
+    offset = f.variables['hgt'].add_offset
     f.close()
 
     # X es el sistema de dias -> alturas geopotenciales del aire a 500 hPa.
@@ -77,10 +81,12 @@ def exercise1():
 
     element_pca = pca.components_
     element_pca = element_pca.reshape(n_components, len(lats), len(lons))
+    element_pca = element_pca * scale_factor + offset
 
     # Para cada una de las cuatro componentes, pintamos las curvas de nivel.
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
+
     for i in range(1, 5):
         ax = fig.add_subplot(2, 2, i)
         ax.text(0.5, 90, 'PCA-' + str(i),
@@ -88,7 +94,6 @@ def exercise1():
         map = plt.contour(lons, lats, element_pca[i - 1, :, :],
                           cmap=plt.get_cmap('hsv'))
         plt.colorbar(map)
-
 
 
     plt.savefig("PCAs.png")
@@ -108,7 +113,6 @@ def analogous(a, b, f_idx, s_idx):
 
 # Dado a0, obtenemos los indices de los dias análogos.
 def get_analogous_days(a0):
-
     # Abrimos el archivo hgt.2019.nc y obtenemos los datos que vamos a usar.
     f = open_file("hgt.2019.nc")
     time = get_values(f, 'time')
@@ -152,13 +156,12 @@ def get_analogous_days(a0):
     print("The best days are:",
           [(dt.date(1800, 1, 1) +
             dt.timedelta(hours=t)).strftime("%d/%m/%Y") for t in time_sim])
-    
+
     # Devolvemos los mejores dias para utilizarlos luego
     return best_idx
 
 
 def exercise2():
-    
     # Obtenemos los dias analogos a a0
     a0 = (dt.date(2020, 1, 20) - dt.date(1800, 1, 1)).days * 24
     analogous_days = get_analogous_days(a0)
