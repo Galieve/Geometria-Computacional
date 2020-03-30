@@ -13,6 +13,21 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import animation
 
+
+# z / d = tan x, x in (-90, 90)
+
+# (x, y, z) = (d sin t, d cos t, z), donde d**2 + z**2 = 1 (d = +sqrt(x**2 + y**2))
+# (d sin t, d cos t, z) -> (sin t, cos t, z / d) = (sin t, cos t, h) (cont en S2 \ polos)
+# (sin t, cos t, h) -> r = (h + 1), (r sin t, r cos t) si h >= 0.
+# (sin t, cos t, h) ->  r = 1/(1 - h), (r sin t, r cos t) si h <= 0.
+
+# (x, y, z) = (d sin t, d cos t, z) -> (sin t, cos t, tan x) -> ((z/d + 1) sin t, (z/d + 1) cos t), z >= 0.
+# (x, y, z) = (d sin t, d cos t, z) -> (sin t, cos t, tan x) -> ((d/(d - z) sin t, (d/(d - z) cos t), z <= 0.
+
+# (x, y, z) = (d sin t, d cos t, z) -> (sin t, cos t, tan x) -> ((tan x + 1) sin t, (tan x + 1) cos t), z >= 0.
+# (x, y, z) = (d sin t, d cos t, z) -> (sin t, cos t, tan x) -> ((1/(1 - tan x) sin t, (1/(1 - tan x) cos t), z <= 0.
+
+
 # p: (0, 1) -> S1\{(0,1)} -> R
 # t -> (sen t, cos t) -> sen t/(1 - cos t)
 # s' = p-1, R -> (0,1)
@@ -49,54 +64,6 @@ from matplotlib import animation
 def setup():
     workpath = os.path.dirname(os.path.abspath(__file__))
     os.chdir(workpath)
-
-
-# (x, y, z)
-# (0, 1), (x_0, z_0)
-# z - 1 = m*(x - 0)
-# m_0 = (z_0 - 1)/x_0
-# z - 1 = m_0 * x
-# x_0' = -1 / m_0 = x_0/(1 - z_0)
-# 0 = m_0 * x => x = 0
-def proj(x, z, z0=1, alpha=1):
-    z0 = z * 0 + z0
-    eps = 1e-16
-    x_trans = x / (abs(z0 - z) ** alpha + eps)
-    return (x_trans)
-
-
-def transform(x, y, z, t):
-    l = (1 - t) + (-1 - z) * t
-    return x / l, y / l, -t + z * (1 - t)
-
-
-def animate(x, y, z, t):
-    xt, yt, zt = transform(x, y, z, t)
-
-    ax = plt.axes(projection='3d')
-    ax.set_zlim3d(-1, 1)
-    ax.plot_surface(xt, yt, zt, rstride=1, cstride=1,
-                    cmap='viridis', edgecolor='none')
-    return ax,
-
-
-def exercise2():
-    u = np.linspace(0, np.pi, 30)
-    v = np.linspace(0, 2 * np.pi, 30)
-
-    x = np.outer(np.sin(u), np.sin(v))
-    y = np.outer(np.sin(u), np.cos(v))
-    z = np.outer(np.cos(u), np.ones_like(v))
-
-    # t_ = np.linspace(0, 1, 200)
-    # x_ = abs(t_) * np.sin(700 * t_ / 2)
-    # y_ = abs(t_) * np.cos(700 * t_ / 2)
-    # z_ = np.sqrt(1 - x_ ** 2 - y_ ** 2)
-
-    fig = plt.figure(figsize=(6, 6))
-    ani = animation.FuncAnimation(fig, lambda t: animate(x, y, z, t),
-                                  np.arange(0, 1, 0.0125), interval=80)
-    ani.save("projected_sphere.gif", fps=10)
 
 
 def proj(x, z, z0=1, alpha=1):
@@ -136,7 +103,7 @@ def exercise1():
     ax.plot(x2, y2, z2, '-b', c="gray", zorder=3)
     ax.set_title('2-sphere');
     plt.savefig("2-sphere.png")
-    #plt.show()
+    # plt.show()
     plt.close(fig)
 
     # NUEVO
@@ -147,12 +114,57 @@ def exercise1():
                     cmap='viridis', edgecolor='none')
     ax.plot(proj(x2, z2), proj(y2, z2), 1, '-b', c="gray", zorder=3)
     ax.set_title('Stereographic projection');
-    #plt.show()
+    # plt.show()
     plt.savefig("Stereographic projection.png");
     plt.close(fig)
 
 
+def transform(x, y, z, t):
+    l = (1 - t) + abs(-1 - z) * t
+    return x / l, y / l, -t + z * (1 - t)
+
+
+def animate(x, y, z, x_, y_, z_, t):
+    xt, yt, zt = transform(x, y, z, t)
+    x_t, y_t, z_t = transform(x_, y_, z_, t)
+    ax = plt.axes(projection='3d')
+    ax.set_zlim3d(-1, 1)
+    ax.plot_surface(xt, yt, zt, rstride=1, cstride=1,
+                    cmap='jet', edgecolor='none')
+
+    ax.plot(x_t, y_t, z_t, '-b', c="white", zorder=3)
+    return ax,
+
+
+def exercise2():
+    u = np.linspace(0, np.pi, 30)
+    v = np.linspace(0, 2 * np.pi, 30)
+
+    x = np.outer(np.sin(u), np.sin(v))
+    y = np.outer(np.sin(u), np.cos(v))
+    z = np.outer(np.cos(u), np.ones_like(v))
+
+    t2 = np.linspace(-1, 0, 500)
+
+    y2 = t2 * np.sin(127 * t2 / 2)
+    z2 = t2 * np.cos(127 * t2 / 2)
+    x2 = np.sqrt(1 - z2 ** 2 - y2 ** 2)
+    t2 = np.linspace(0, 1, 500)
+    a2 = t2 * np.sin(127 * t2 / 2)
+    y2 = np.concatenate((y2, a2))
+    b2 = t2 * np.cos(127 * t2 / 2)
+    z2 = np.concatenate((z2, -b2))
+    x2 = np.concatenate((x2, -np.sqrt(1 - a2 ** 2 - b2 ** 2)))
+    c2 = x2 + y2
+
+    fig = plt.figure(figsize=(6, 6))
+    ani = animation.FuncAnimation(fig, lambda t: animate(x, y, z, x2, y2, z2, t),
+                                  np.arange(0, 1, 0.0125), interval=80)
+
+    ani.save("projected_sphere.gif", fps=10)
+
+
 if __name__ == "__main__":
     setup()
-    exercise1()
-    # exercise2()
+    # exercise1()
+    exercise2()
