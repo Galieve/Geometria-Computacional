@@ -31,7 +31,7 @@ def transform_surface(x, y, z, t, alpha=0.1):
 
 def transform_parametric(x, y, z, t):
     l = (1 - t) + np.tan(t * np.arctan(abs(-1 - z)))
-    return x / l, y / l, (-t + z * (1 - t)) / l
+    return x / l, y / l, -t + z * (1 - t)
 
 
 def animate(x, y, z, x_, y_, z_, t):

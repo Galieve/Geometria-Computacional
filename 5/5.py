@@ -121,7 +121,7 @@ def exercise1():
 
 def transform(x, y, z, t):
     l = (1 - t) + abs(-1 - z) * t
-    return x / l, y / l, (-t + z * (1 - t)) / l
+    return x / l, y / l, -t + z * (1 - t)
 
 
 def animate(x, y, z, x_, y_, z_, t):
