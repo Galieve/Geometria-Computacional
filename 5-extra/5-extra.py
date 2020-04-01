@@ -29,11 +29,18 @@ def transform_surface(x, y, z, t, alpha=0.1):
     r = np.array([[1 - i if i >= 0 else (1 / (1 + i) ** alpha if i > -1 else 0) for i in j] for j in z])
     return (1 - t) * x + t * (r * np.sin(theta)), (1 - t) * y + t * (r * np.cos(theta)), (1 - t) * z
 
+def transform_parametric(x, y, z, t):
+    l = (1 - t) + np.tan(t * np.arctan(abs(-1 - z)))
+    return x / l, y / l, (-t + z * (1 - t)) / l
+
 
 def animate(x, y, z, x_, y_, z_, t):
     alpha = 0.2
-    xt, yt, zt = transform_surface(x, y, z, t, alpha)
-    x_t, y_t, z_t = transform_curve(x_, y_, z_, t, alpha)
+    # xt, yt, zt = transform_surface(x, y, z, t, alpha)
+    # x_t, y_t, z_t = transform_curve(x_, y_, z_, t, alpha)
+    xt, yt, zt = transform_parametric(x, y, z, t)
+    x_t, y_t, z_t = transform_parametric(x_, y_, z_, t)
+
     ax = plt.axes(projection='3d')
     ax.set_zlim3d(-1, 1)
     ax.plot_surface(xt, yt, zt, rstride=1, cstride=1,
@@ -68,7 +75,7 @@ def exercise3():
     ani = animation.FuncAnimation(fig, lambda t: animate(x, y, z, x2, y2, z2, t),
                                   np.arange(0, 1, 0.0125), interval=80)
 
-    ani.save("projected_sphere_new_version.gif", fps=10)
+    ani.save("projected_sphere_new_version.htm", fps=10)
 
 
 if __name__ == "__main__":
