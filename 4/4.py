@@ -69,17 +69,20 @@ def exercise1():
     # X es el sistema de dias -> alturas geopotenciales del aire a 500 hPa.
     p_idx = get_idx(level, 500)
     X = hgt[:, p_idx, :, :].reshape(len(time), len(lats) * len(lons))
+    # Transponemos para reducir en las variables temporales
+    X = X.transpose()
 
     # Realizamos el análisis PCA
     n_components = 4
     pca = PCA(n_components=n_components)
-    pca.fit(X)
+    element_pca = pca.fit_transform(X)
     print("The explained variance ratio is:",
           [f'{vr:.6f}' for vr in pca.explained_variance_ratio_])
     print("The total explained variance ratio is:",
           f'{sum(pca.explained_variance_ratio_):.6f}')
 
-    element_pca = pca.components_
+    # Deshacemos la transposicion anterior
+    element_pca = element_pca.transpose()
     element_pca = element_pca.reshape(n_components, len(lats), len(lons))
     element_pca = element_pca * scale_factor + offset
 
@@ -93,7 +96,7 @@ def exercise1():
                 fontsize=18, ha='center')
         map = plt.contour(lons, lats, element_pca[i - 1, :, :],
                           cmap=plt.get_cmap('hsv'))
-        plt.colorbar(map)
+        # plt.colorbar(map)
 
 
     plt.savefig("PCAs.png")
@@ -123,7 +126,7 @@ def get_analogous_days(a0):
     f.close()
 
     # Realizamos el cambio de coordenadas propuesto.
-    lons = np.array([i if i <= 180 else i - 360 for i in lons])
+    lons = np.array([i if i < 180 else i - 360 for i in lons])
 
     # Abrimos el archivo hgt.2020.nc y obtenemos los datos que vamos a usar.
     f = open_file("hgt.2020.nc")
