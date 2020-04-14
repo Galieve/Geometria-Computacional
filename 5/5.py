@@ -99,8 +99,8 @@ def exercise1():
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     ax.plot_surface(x, y, z, rstride=1, cstride=1,
-                    cmap='viridis', edgecolor='none')
-    ax.plot(x2, y2, z2, '-b', c="gray", zorder=3)
+                    cmap='jet', edgecolor='none')
+    ax.plot(x2, y2, z2, '-b', c="white", zorder=3)
     ax.set_title('2-sphere');
     plt.savefig("2-sphere.png")
     # plt.show()
@@ -111,8 +111,8 @@ def exercise1():
     ax = plt.axes(projection='3d')
 
     ax.plot_surface(proj(x, z), proj(y, z), z * 0 + 1, rstride=1, cstride=1,
-                    cmap='viridis', edgecolor='none')
-    ax.plot(proj(x2, z2), proj(y2, z2), 1, '-b', c="gray", zorder=3)
+                    cmap='jet', edgecolor='none')
+    ax.plot(proj(x2, z2), proj(y2, z2), 1, '-b', c="white", zorder=3)
     ax.set_title('Stereographic projection');
     # plt.show()
     plt.savefig("Stereographic projection.png");
@@ -128,6 +128,8 @@ def animate(x, y, z, x_, y_, z_, t):
     xt, yt, zt = transform(x, y, z, t)
     x_t, y_t, z_t = transform(x_, y_, z_, t)
     ax = plt.axes(projection='3d')
+    ax.set_xlim3d(-1, 1)
+    ax.set_ylim3d(-1, 1)
     ax.set_zlim3d(-1, 1)
     ax.plot_surface(xt, yt, zt, rstride=1, cstride=1,
                     cmap='jet', edgecolor='none')
@@ -166,5 +168,5 @@ def exercise2():
 
 if __name__ == "__main__":
     setup()
-    # exercise1()
+    exercise1()
     exercise2()
