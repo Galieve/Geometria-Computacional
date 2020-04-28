@@ -42,17 +42,11 @@ def exercise1():
     z = np.outer(np.cos(u), np.ones_like(v))
 
     # Parametrización discreta de la curva gamma.
-    t2 = np.linspace(0, -1, 500)
-    y2 = t2 * np.sin(127 * t2 / 2)
-    z2 = t2 * np.cos(127 * t2 / 2)
-    x2 = np.sqrt(1 - z2 ** 2 - y2 ** 2)
+    tetha = np.linspace(0, np.pi, 500)
 
-    t2 = np.linspace(1, 0, 500)
-    a2 = t2 * np.sin(127 * t2 / 2)
-    y2 = np.concatenate((y2, a2))
-    b2 = t2 * np.cos(127 * t2 / 2)
-    z2 = np.concatenate((z2, -b2))
-    x2 = np.concatenate((x2, -np.sqrt(1 - a2 ** 2 - b2 ** 2)))
+    y2 = np.sin(tetha) * np.sin(16 * tetha)
+    z2 = np.sin(tetha) * np.cos(16 * tetha)
+    x2 = np.cos(tetha)
 
     # Generamos la figura.
     fig = plt.figure()
@@ -61,6 +55,8 @@ def exercise1():
     ax.set_xlim3d(-1, 1)
     ax.set_ylim3d(-1, 1)
     ax.set_zlim3d(-1, 1)
+
+    ax.set_zlabel('z')
 
     # Pintamos la esfera.
     ax.plot_surface(x, y, z, rstride=1, cstride=1,
@@ -75,7 +71,9 @@ def exercise1():
     # Generamos la figura proyectada.
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    ax.set_zlim3d(-1, 1)
+
+    ax.set_xlim3d(-1, 1)
+
     # No fijamos el resto de ejes ya que sino no se ve
     # adecuadamente la figura. Para un análisis en este sentido,
     # el ejercicio siguiente
@@ -133,17 +131,11 @@ def exercise2():
     z = np.outer(np.cos(u), np.ones_like(v))
 
     # Parametrización discreta de la curva gamma.
-    t2 = np.linspace(-1, 0, 500)
+    tetha = np.linspace(0, np.pi, 500)
 
-    y2 = t2 * np.sin(127 * t2 / 2)
-    z2 = t2 * np.cos(127 * t2 / 2)
-    x2 = np.sqrt(1 - z2 ** 2 - y2 ** 2)
-    t2 = np.linspace(0, 1, 500)
-    a2 = t2 * np.sin(127 * t2 / 2)
-    y2 = np.concatenate((y2, a2))
-    b2 = t2 * np.cos(127 * t2 / 2)
-    z2 = np.concatenate((z2, -b2))
-    x2 = np.concatenate((x2, -np.sqrt(1 - a2 ** 2 - b2 ** 2)))
+    y2 = np.sin(tetha) * np.sin(16 * tetha)
+    z2 = np.sin(tetha) * np.cos(16 * tetha)
+    x2 = np.cos(tetha)
 
     # Generamos la animacion.
     fig = plt.figure(figsize=(6, 6))
