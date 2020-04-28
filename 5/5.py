@@ -44,8 +44,8 @@ def exercise1():
     # Parametrización discreta de la curva gamma.
     tetha = np.linspace(0, np.pi, 500)
 
-    y2 = np.sin(tetha) * np.sin(16 * tetha)
-    z2 = np.sin(tetha) * np.cos(16 * tetha)
+    y2 = np.sin(tetha) * np.cos(17.5 * tetha)
+    z2 = np.sin(tetha) * np.sin(17.5 * tetha)
     x2 = np.cos(tetha)
 
     # Generamos la figura.
@@ -56,14 +56,12 @@ def exercise1():
     ax.set_ylim3d(-1, 1)
     ax.set_zlim3d(-1, 1)
 
-    ax.set_zlabel('z')
-
     # Pintamos la esfera.
     ax.plot_surface(x, y, z, rstride=1, cstride=1,
                     cmap='jet', edgecolor='none')
     # Pintamos la curva.
     ax.plot(x2, y2, z2, '-b', c="white", zorder=3)
-    ax.set_title('2-sphere');
+    ax.set_title('2-sphere')
     plt.savefig("2-sphere.png")
     # plt.show()
     plt.close(fig)
@@ -72,21 +70,21 @@ def exercise1():
     fig = plt.figure()
     ax = plt.axes(projection='3d')
 
-    ax.set_xlim3d(-1, 1)
-
     # No fijamos el resto de ejes ya que sino no se ve
     # adecuadamente la figura. Para un análisis en este sentido,
     # el ejercicio siguiente
-
+    ax.set_zlim3d(-1, 1)
+    # print(x2[234], z2[234])
+    # print(np.argmax(proj(x2,z2)), np.max(proj(y2,z2)))
     # Pintamos la esfera proyectada sobre el plano z = -1.
     ax.plot_surface(proj(x, z), proj(y, z), z * 0 -1, rstride=1,
                     cstride=1, cmap='jet', edgecolor='none')
 
     # Pintamos la curva gamma sobre el plano z = -1.
     ax.plot(proj(x2, z2), proj(y2, z2), -1, '-b', c="white", zorder=3)
-    ax.set_title('Stereographic projection');
+    ax.set_title('Stereographic projection')
     # plt.show()
-    plt.savefig("Stereographic projection.png");
+    plt.savefig("Stereographic projection.png")
     plt.close(fig)
 
 
@@ -133,8 +131,8 @@ def exercise2():
     # Parametrización discreta de la curva gamma.
     tetha = np.linspace(0, np.pi, 500)
 
-    y2 = np.sin(tetha) * np.sin(16 * tetha)
-    z2 = np.sin(tetha) * np.cos(16 * tetha)
+    z2 = np.sin(tetha) * np.sin(17.5 * tetha)
+    y2 = np.sin(tetha) * np.cos(17.5 * tetha)
     x2 = np.cos(tetha)
 
     # Generamos la animacion.

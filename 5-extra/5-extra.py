@@ -55,8 +55,8 @@ def exercise3():
     # Parametrización discreta de la curva gamma.
     tetha = np.linspace(0, np.pi, 500)
 
-    y2 = np.sin(tetha) * np.sin(16 * tetha)
-    z2 = np.sin(tetha) * np.cos(16 * tetha)
+    z2 = np.sin(tetha) * np.sin(17.5 * tetha)
+    y2 = np.sin(tetha) * np.cos(17.5 * tetha)
     x2 = np.cos(tetha)
 
     # Generamos la animacion.
