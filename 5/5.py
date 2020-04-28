@@ -74,8 +74,7 @@ def exercise1():
     # adecuadamente la figura. Para un análisis en este sentido,
     # el ejercicio siguiente
     ax.set_zlim3d(-1, 1)
-    # print(x2[234], z2[234])
-    # print(np.argmax(proj(x2,z2)), np.max(proj(y2,z2)))
+
     # Pintamos la esfera proyectada sobre el plano z = -1.
     ax.plot_surface(proj(x, z), proj(y, z), z * 0 -1, rstride=1,
                     cstride=1, cmap='jet', edgecolor='none')
