@@ -204,7 +204,7 @@ def exercise2():
     temp_error = abs(temp_a0 - avg_temp)
     avg_error = np.sum(temp_error) / temp_error.size
 
-    print("The average error is:", f'{avg_error:.6f}', units)
+    print("The average error is:", f'{avg_error:.3f}', units)
 
 
 if __name__ == "__main__":
