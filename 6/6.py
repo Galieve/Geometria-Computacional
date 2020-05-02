@@ -1,3 +1,5 @@
+# Practica realizada por Alejandro Hernandez 
+# y Enrique Roman Calvo
 
 import os
 import numpy as np
@@ -8,22 +10,22 @@ def setup():
     workpath = os.path.dirname(os.path.abspath(__file__))
     os.chdir(workpath)
 
-#q = variable de posición, dq0 = \dot{q}(0) = valor inicial de la derivada
-#d = granularidad del parámetro temporal
+#q = variable de posicion, dq0 = \dot{q}(0) = valor inicial de la derivada
+#d = granularidad del parametro temporal
 def deriv(q,dq0,d):
    #dq = np.empty([len(q)])
    dq = (q[1:len(q)]-q[0:(len(q)-1)])/d
    dq = np.insert(dq,0,dq0) #dq = np.concatenate(([dq0],dq))
    return dq
 
-#Ecuación de un sistema dinámico continuo
+#Ecuacion de un sistema dinamico continuo
 #Ejemplo de oscilador simple
 def F(q):
     ddq = - 2*q*(q**2 - 1)
     return ddq
 
-#Resolución de la ecuación dinámica \ddot{q} = F(q), obteniendo la órbita q(t)
-#Los valores iniciales son la posición q0 := q(0) y la derivada dq0 := \dot{q}(0)
+#Resolucion de la ecuacion dinamica \ddot{q} = F(q), obteniendo la orbita q(t)
+#Los valores iniciales son la posicion q0 := q(0) y la derivada dq0 := \dot{q}(0)
 def orb(n,q0,dq0,F, args=None, d=0.001):
     #q = [0.0]*(n+1)
     q = np.empty([n+1])
@@ -36,8 +38,8 @@ def orb(n,q0,dq0,F, args=None, d=0.001):
 
 
 def periodos(q,d,max=True):
-    #Si max == True, tomamos las ondas a partir de los máximos/picos
-    #Si max == False, tomamos los las ondas a partir de los mínimos/valles
+    #Si max == True, tomamos las ondas a partir de los maximos/picos
+    #Si max == False, tomamos los las ondas a partir de los minimos/valles
     epsilon = 6*d
     dq = deriv(q,dq0=None,d=d) #La primera derivada es irrelevante
 
@@ -133,7 +135,6 @@ def find_area(seq_q0, seq_dq0, d, n):
             peque = area
         minim = min(minim, area)
         maxim = max(maxim, area)
-    print(maxim, peque, minim)
     return maxim - peque / 2 - minim
 
 def poly_area(x,y):
@@ -202,7 +203,7 @@ def exercise2():
         seq_dq0 = seq_dq0.flatten()
         areas.append(find_area(seq_q0, seq_dq0,d,n))
     diff_areas = np.diff(np.asarray(areas))
-    print("El area estimada del espacio fásico es " + str(areas[0]) +
+    print("El area estimada del espacio fasico es " + str(areas[0]) +
          " y el error cometido es " + str(max(abs(diff_areas))))
     check_liouville_theorem()
 
