@@ -25,38 +25,51 @@ def get_figure():
     return z, x, y
 
 
-def get_centroid(X, Y, Z):
-    cx, cy, cz = np.sum(X), np.sum(Y), np.sum(Z)
-    return cx / X.size, cy / Y.size, cz / Z.size
+# Para calcular el centroide, sumamos todos los elementos
+# de cada uno de los vectores y dividimos por el numero
+# de elementos.
+def get_centroid(Xi):
+    return [np.sum(X) / X.size for X in Xi]
 
-
-def get_diameter(X, Y, Z):
-    df = pd.DataFrame({'x': X.flatten(), 'y': Y.flatten(), 'z': Z.flatten()})
-    xyz = df.values
-    hull = ConvexHull(xyz)
+# Para conseguir el diametro, agrupamos las coordenadas en
+# tuplas  y hallamos su envolvente convexa, utilizando
+# el metodo ConvexHull de la libreria SciPy. Basta comprobar
+# estos puntos 2 a 2 para calcular el diametro
+def get_diameter(Xi):
+    coord = {str(i) : X.flatten() for i,X in enumerate(Xi)}
+    df = pd.DataFrame.from_dict(coord)
+    points = df.values
+    hull = ConvexHull(points)
 
     if len(hull.vertices) < 1e3:
         v = hull.vertices
         d = 0
         for i in range(len(v)):
             for j in range(i+1, len(v)):
-                d = max(d, np.linalg.norm(xyz[v[i]]-xyz[v[j]]))
+                d = max(d, np.linalg.norm(points[v[i]]-points[v[j]]))
         return d
+    # Vemos que no obtenemos demasiados puntos.
     else:
-        print("convex hull failed.")
+        print("Too many points.")
         return 10
 
 
-# Devolvemos f(x, y, z, t), donde (x, y, z) estan en
-# S2 \ {(0,0,-1)} y t en [0, 1].
+# Funcion que realiza la transformacion pedida, en funcion
+# de un tiempo t, de tal forma que cuando t=0 obtenemos los
+# puntos de partida y cuando t=1, obtenemos la composicion
+# de la rotacion y la traslacion.
 def transform(X, Y, Z, c, d, t):
     v = (d*t, d*t, 0)
     theta = 3 * np.pi*t
+
+    # Aplicamos la rotacion
     opX, opY, opZ = X - c[0], Y - c[1], Z - c[2]
     opX_ = np.cos(theta) * opX - np.sin(theta) * opY
     opY_ = np.sin(theta) * opX + np.cos(theta) * opY
     opZ_ = opZ
     X, Y, Z = c[0] + opX_, c[1] + opY_, c[2] + opZ_
+
+    # Aplicamos la traslacion
     X, Y, Z = X + v[0], Y + v[1], Z + v[2]
     return X, Y, Z
 
@@ -81,8 +94,10 @@ def animate(X, Y, Z, c, d, t):
 def exercise1():
 
     X, Y, Z = get_figure()
-    c = get_centroid(X, Y, Z)
-    d = get_diameter(X, Y, Z)
+    c = get_centroid([X, Y, Z])
+    d = get_diameter([X, Y, Z])
+    print("El centroide de la banda de Moebius-xyz es el punto "
+          + str(c) + " y el diametro es " + str(d))
 
     # Generamos la animacion.
     fig = plt.figure(figsize=(6, 6))
@@ -90,18 +105,48 @@ def exercise1():
                                   lambda t: animate(X, Y, Z, c, d, t),
                                   np.arange(0, 1, 0.0125), interval=80)
 
+    # Volvemos a recalcular el centroide
+    # El diametro se mantiene
+
     ani.save("möbius band xyz.gif", fps=10)
     plt.clf()
+
     fig = plt.figure(figsize=(6, 6))
+
+    # El centroide en este caso basta reordenar
+    # los valores de centroide obtenidos en la figura anterior
+    # El diametro se mantiene
+    c = [c[1], c[2], c[0]]
     ani = animation.FuncAnimation(fig,
                                   lambda t: animate(Y, Z, X, c, d, t),
                                   np.arange(0, 1, 0.0125), interval=80)
 
     ani.save("möbius band yzx.gif", fps=10)
 
+# Funcion auxiliar que dibuja la banda
+# de moebius dado un instante (para la memoria)
+def plot_figure(t, name):
+    X,Y,Z = get_figure()
+    c = get_centroid([Y,Z,X])
+    d = get_diameter([X, Y, Z])
+
+    xt, yt, zt = transform(Y,Z,X, c, d, t)
+    ax = plt.axes(projection='3d')
+
+    # Fijamos los ejes para ver fielmente la deformación.
+    ax.set_xlim3d(-1, d + 1)
+    ax.set_ylim3d(-1, d + 1)
+
+    cset = ax.plot_surface(xt, yt, zt, rstride=1, cstride=1,
+                           cmap='jet', edgecolor='none')
+    ax.clabel(cset, fontsize=9, inline=1)
+    plt.savefig(name +"t=" +  str(t) + ".png")
+
 
 # (x, y, z) y de la curva (x_, y_, z_) calculamos f_t para
-# cada uno de ellos.
+# cada uno de ellos. Utilizamos una tercera coordenada del color para
+# reutilizar los metodos anteriores, puesto que z queda invariante
+# bajo la transformacion.
 def animate_leaf(X, Y, Z, c, d, t):
     xt, yt, zt = transform(X, Y, Z, c, d, t)
     ax = plt.axes(projection='3d')
@@ -115,43 +160,39 @@ def animate_leaf(X, Y, Z, c, d, t):
 
 def exercise2():
     img = io.imread('arbol.png')
-    dimensions = color.guess_spatial_dimensions(img)
-    print(dimensions)
     io.show()
-    # io.imsave('arbol2.png',img)
-
-    # https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
-    fig = plt.figure(figsize=(5, 5))
-    p = plt.contourf(img[:, :, 0], cmap=plt.cm.get_cmap('summer'), levels=np.arange(0, 240, 2))
     plt.axis('off')
     # fig.colorbar(p)
 
     xyz = img.shape
-    print(xyz)
 
+    # Generamos los puntos de la malla
+    # de la figura en dos arrays 1-d
     x = np.arange(0, xyz[0], 1)
     y = np.arange(0, xyz[1], 1)
     xx, yy = np.meshgrid(x, y)
     xx = np.asarray(xx).reshape(-1)
     yy = np.asarray(yy).reshape(-1)
+
+    # Seleccionamos el valor de color rojo
     z = img[:, :, 0]
     zz = np.asarray(z).reshape(-1)
 
     """
     Consideraremos sólo los elementos con zz < 240 
-
-    Por curiosidad, comparamos el resultado con contourf y scatter!
     """
     # Variables de estado coordenadas
     x0 = xx[zz < 240]
     y0 = yy[zz < 240]
     z0 = zz[zz < 240] / 256.
-    print(x0.shape)
-    print(y0.shape)
-    print(z0.shape)
-    c = get_centroid(x0, y0, z0)
-    d = get_diameter(x0, y0, z0)
 
+    # Hallamos el centroide y el diametro
+    c = get_centroid([x0, y0])
+    d = get_diameter([x0, y0])
+
+    print("El centroide de la hoja es el punto " + str(c) + " y el diametro es " + str(d))
+    # Anyadimos un 0 para trabajar en 3 variables
+    c.append(0)
 
     # Generamos la animacion.
     fig = plt.figure(figsize=(6, 6))
@@ -160,8 +201,6 @@ def exercise2():
                                   np.arange(0, 1, 0.0125), interval=80)
 
     ani.save("leaf.gif", fps=10)
-
-
 
 
 if __name__ == "__main__":
