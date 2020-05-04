@@ -1,4 +1,3 @@
-# Nos colocamos en la carpeta de este archivo.
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,14 +7,14 @@ from matplotlib import animation
 from skimage import io, color
 from scipy.spatial import ConvexHull
 
-
+# Nos colocamos en la carpeta de este archivo.
 def setup():
     workpath = os.path.dirname(os.path.abspath(__file__))
     os.chdir(workpath)
 
 
 def get_figure():
-    # Parametrización discreta de la banda de Mobius.
+    # Parametrizacion discreta de la banda de Mobius.
     t = np.linspace(-0.5, 0.5, 120)
     theta = np.linspace(0, 2 * np.pi, 120)
 
@@ -47,14 +46,16 @@ def get_diameter(Xi):
         for i in range(len(v)):
             for j in range(i+1, len(v)):
                 d = max(d, np.linalg.norm(points[v[i]]-points[v[j]]))
+        print("Hemos reducido de " + str(points.size) + " a " + str(v.size))
         return d
-    # Vemos que no obtenemos demasiados puntos.
+    # Obtenemos demasiados puntos para calcular
+    # el radio.
     else:
         print("Too many points.")
         return 10
 
 
-# Funcion que realiza la transformacion pedida, en funcion
+# Rutina que realiza la transformacion pedida, en funcion
 # de un tiempo t, de tal forma que cuando t=0 obtenemos los
 # puntos de partida y cuando t=1, obtenemos la composicion
 # de la rotacion y la traslacion.
@@ -74,14 +75,13 @@ def transform(X, Y, Z, c, d, t):
     return X, Y, Z
 
 
-# Dado un tiempo t, una colección de puntos de la superficie
-# (x, y, z) y de la curva (x_, y_, z_) calculamos f_t para
-# cada uno de ellos.
+# Dado un tiempo t, una coleccion de puntos de la superficie
+# (x, y, z) calculamos f_t para cada uno de ellos.
 def animate(X, Y, Z, c, d, t):
     xt, yt, zt = transform(X, Y, Z, c, d, t)
     ax = plt.axes(projection='3d')
 
-    # Fijamos los ejes para ver fielmente la deformación.
+    # Fijamos los ejes para ver fielmente la deformacion.
     ax.set_xlim3d(-1, d+1)
     ax.set_ylim3d(-1, d+1)
 
@@ -96,7 +96,7 @@ def exercise1():
     X, Y, Z = get_figure()
     c = get_centroid([X, Y, Z])
     d = get_diameter([X, Y, Z])
-    print("El centroide de la banda de Moebius-xyz es el punto "
+    print("El centroide de la banda de Moebius es el punto "
           + str(c) + " y el diametro es " + str(d))
 
     # Generamos la animacion.
@@ -104,9 +104,6 @@ def exercise1():
     ani = animation.FuncAnimation(fig,
                                   lambda t: animate(X, Y, Z, c, d, t),
                                   np.arange(0, 1, 0.0125), interval=80)
-
-    # Volvemos a recalcular el centroide
-    # El diametro se mantiene
 
     ani.save("möbius band xyz.gif", fps=10)
     plt.clf()
@@ -124,16 +121,16 @@ def exercise1():
     ani.save("möbius band yzx.gif", fps=10)
 
 # Funcion auxiliar que dibuja la banda
-# de moebius dado un instante (para la memoria)
+# de moebius dado un instante (figura de la memoria)
 def plot_figure(t, name):
     X,Y,Z = get_figure()
-    c = get_centroid([Y,Z,X])
+    c = get_centroid([X, Y, Z])
     d = get_diameter([X, Y, Z])
 
-    xt, yt, zt = transform(Y,Z,X, c, d, t)
+    xt, yt, zt = transform(X, Y, Z, c, d, t)
     ax = plt.axes(projection='3d')
 
-    # Fijamos los ejes para ver fielmente la deformación.
+    # Fijamos los ejes para ver fielmente la deformacion.
     ax.set_xlim3d(-1, d + 1)
     ax.set_ylim3d(-1, d + 1)
 
@@ -143,19 +140,18 @@ def plot_figure(t, name):
     plt.savefig(name +"t=" +  str(t) + ".png")
 
 
-# (x, y, z) y de la curva (x_, y_, z_) calculamos f_t para
-# cada uno de ellos. Utilizamos una tercera coordenada del color para
-# reutilizar los metodos anteriores, puesto que z queda invariante
-# bajo la transformacion.
+# Calculamos f_t para (x,y,z) coordenadas de la hoja
+# cada uno de ellos. Utilizamos una tercera coordenada
+# identicamente nula a la hora de calcular la transformación
 def animate_leaf(X, Y, Z, c, d, t):
-    xt, yt, zt = transform(X, Y, Z, c, d, t)
+    xt, yt, _ = transform(X, Y, np.zeros_like(X), c, d, t)
     ax = plt.axes(projection='3d')
 
-    # Fijamos los ejes para ver fielmente la deformación.
+    # Fijamos los ejes para ver fielmente la deformacion.
     ax.set_xlim3d(-1, 2*d+1)
     ax.set_ylim3d(-1, 2*d+1)
 
-    ax.scatter(xt, yt, c=zt, s=0.1, animated=True)
+    ax.scatter(xt, yt, c=Z, s=0.1, animated=True)
     return ax,
 
 def exercise2():
@@ -179,7 +175,7 @@ def exercise2():
     zz = np.asarray(z).reshape(-1)
 
     """
-    Consideraremos sólo los elementos con zz < 240 
+    Consideraremos solo los elementos con zz < 240 
     """
     # Variables de estado coordenadas
     x0 = xx[zz < 240]
