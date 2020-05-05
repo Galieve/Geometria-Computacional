@@ -196,7 +196,7 @@ def check_liouville_theorem():
 
     # Con esos puntos, obtenemos el area del poligono que definen
     for t, seq_qi, seq_dqi in zip(timestamps, list_seq_qi, list_seq_dqi):
-        print("Area for D(t=" + str(t) + "): " + f'{poly_area(seq_qi, seq_dqi):.3f}')
+        print("Area for D(t=" + str(t) + "): " + str(np.round(poly_area(seq_qi, seq_dqi),decimals=3)))
 
 
 def exercise2():
@@ -211,8 +211,8 @@ def exercise2():
         seq_dq0 = seq_dq0.flatten()
         areas.append(find_area(seq_q0, seq_dq0, d, n))
     diff_areas = np.diff(np.asarray(areas))
-    print("El area estimada del espacio fasico es " + f'{areas[0]:.3f}' +
-          " y el error cometido es " + f'{max(abs(diff_areas)):.3f}')
+    print("El area estimada del espacio fasico es " + str(np.round(areas[0],decimals=4)) +
+          " y el error cometido es " + str(np.round(max(abs(diff_areas)),decimals=4)))
     check_liouville_theorem()
 
 

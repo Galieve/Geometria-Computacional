@@ -97,7 +97,7 @@ def exercise1():
     c = get_centroid([X, Y, Z])
     d = get_diameter([X, Y, Z])
     print("El centroide de la banda de Moebius es el punto "
-          + str(c) + " y el diametro es " + str(d))
+          + str(np.around(c,decimals=3)) + " y el diametro es " + str(round(d,3)))
 
     # Generamos la animacion.
     fig = plt.figure(figsize=(6, 6))
@@ -186,7 +186,8 @@ def exercise2():
     c = get_centroid([x0, y0])
     d = get_diameter([x0, y0])
 
-    print("El centroide de la hoja es el punto " + str(c) + " y el diametro es " + str(d))
+    print("El centroide de la hoja es el punto " + str(np.around(c, decimals=3))
+          + " y el diametro es " + str(round(d,3)))
     # Anyadimos un 0 para trabajar en 3 variables
     c.append(0)
 
