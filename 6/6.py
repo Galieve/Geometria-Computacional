@@ -202,6 +202,7 @@ def check_liouville_theorem():
 def exercise2():
     deltas = np.linspace(10 ** -3., 10 ** -4., num=10)
     areas = []
+
     for d in deltas:
         n = int(32 / d)
         seq_q0 = np.linspace(0., 1., num=10, endpoint=True)
