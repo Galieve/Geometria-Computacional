@@ -29,7 +29,7 @@ def F(q):
 
 
 # Resolucion de la ecuacion dinamica \ddot{q} = F(q), obteniendo la orbita q(t)
-# Los valores iniciales son la posicion q0 := q(0) y la derivada dq0 := \dot{q}(0)
+# Los valores iniciales son q0 := q(0) y dq0 := \dot{q}(0)
 def orb(n, q0, dq0, F, args=None, d=0.001):
     # q = [0.0]*(n+1)
     q = np.empty([n + 1])
@@ -52,9 +52,11 @@ def periodos(q, d, max=True):
     # con 0) Si es < 0, es un valle, y si es > 0, es un pico
     avg_point = sum(q) / q.size
     if max:
-        waves = np.where((np.round(dq, int(-np.log10(epsilon))) == 0) & (q > avg_point))
+        waves = np.where((np.round(dq, int(-np.log10(epsilon))) == 0)
+                         & (q > avg_point))
     else:
-        waves = np.where((np.round(dq, int(-np.log10(epsilon))) == 0) & (q < avg_point))
+        waves = np.where((np.round(dq, int(-np.log10(epsilon))) == 0)
+                         & (q < avg_point))
     diff_waves = np.diff(waves)
     waves = waves[0][1:][diff_waves[0] > 1]
     pers = diff_waves[diff_waves > 1] * d
@@ -62,7 +64,8 @@ def periodos(q, d, max=True):
 
 
 ## Pintamos el espacio de fases
-def simplectica(q0, dq0, F, col=0, d=10 ** (-4), n=int(16 / 10 ** (-4)), marker='-'):
+def simplectica(q0, dq0, F, col=0, d=10 ** (-4),
+                n=int(16 / 10 ** (-4)), marker='-'):
     q = orb(n, q0=q0, dq0=dq0, F=F, d=d)
     dq = deriv(q, dq0=dq0, d=d)
     p = dq / 2
@@ -82,7 +85,8 @@ def exercise1():
             q0 = seq_q0[i]
             dq0 = seq_dq0[j]
             col = (1 + i + j * (len(seq_q0))) / (len(seq_q0) * len(seq_dq0))
-            simplectica(q0=q0, dq0=dq0, F=F, col=col, marker='-', d=d, n=int(16 / d))
+            simplectica(q0=q0, dq0=dq0, F=F, col=col, marker='-',
+                        d=d, n=int(16 / d))
     ax = fig.gca()
     ax.set_xlabel("q(t)", fontsize=12)
     ax.set_ylabel("p(t)", fontsize=12)
@@ -196,7 +200,8 @@ def check_liouville_theorem():
 
     # Con esos puntos, obtenemos el area del poligono que definen
     for t, seq_qi, seq_dqi in zip(timestamps, list_seq_qi, list_seq_dqi):
-        print("Area for D(t=" + str(t) + "): " + str(np.round(poly_area(seq_qi, seq_dqi),decimals=3)))
+        print("Area for D(t=" + str(t) + "): " +
+              f'{np.round(poly_area(seq_qi, seq_dqi),decimals=3):.3f}')
 
 
 def exercise2():
@@ -212,8 +217,10 @@ def exercise2():
         seq_dq0 = seq_dq0.flatten()
         areas.append(find_area(seq_q0, seq_dq0, d, n))
     diff_areas = np.diff(np.asarray(areas))
-    print("El area estimada del espacio fasico es " + str(np.round(areas[0],decimals=4)) +
-          " y el error cometido es " + str(np.round(max(abs(diff_areas)),decimals=4)))
+    print("El area estimada del espacio fasico es " +
+          f'{np.round(areas[0],decimals=3):.3f}' +
+          " y el error cometido es " +
+          f'{np.round(max(abs(diff_areas)),decimals=3):.3f}')
     check_liouville_theorem()
 
 
