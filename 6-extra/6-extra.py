@@ -13,22 +13,9 @@ def setup():
     os.chdir(workpath)
 
 
-# se puede realizar la aproximacion de ANNU siguiente:
-# q_i(t+h)=q_i(t)+h*(dq_i/dt(t)). Además, no tiene sentido buscar
-# algo como en la practica 6 ya que el error cometido es del mismo
-# orden y es mucho más comodo calcular los q_i así.
-# (Euler explícito).
-# Podríamos hacer el trapecio o runge kutta si te hace ilu :)
+def eps():
+    return 10**-8
 
-# d2q/dt2 = (d2q_1/dt2, d2q_2/dt2, d2q_3/dt2) =
-#   (a(dq2/dt-dq1/dt), bdq1/dt -dq2/dt -(dq1/dtq3+q1dq3/dt),
-#       dq1/dtq2 + q1dq2/dt- cdq3/dt) = F(dq/dt)
-# F(dq/dt) =
-#   a(bq1-q2-q1q3-a(q2-q1))
-#   b(a(q2-q1))-(bq1-q2-q1q3)-a(q2-q1)*q3 -q1*(q1q2-cq3)
-#   a(q2-q1)*q2 +q1*(bq1-q2-q1q3) - c*(q1q2-cq3)
-
-# dq/dt = (dq1/dt, dq2/dt, dq3/dt) \aprox = (q1(t+h)-q1(t), ...) / h
 
 def derivate(q, a, b, c):
     q1, q2, q3 = q
@@ -110,41 +97,7 @@ def exercise3():
     fig3.savefig("(Q3,P3).png")
 
 
-# si ui == R =>
-# sum{ui^d} = R^d*sum_i{1} = R^d * N(R)
-# [N(R)] => check
-
-def get_points(phasic_space, r):
-    xmin, xmax = np.amin(phasic_space[:, 0]), np.amax(phasic_space[:, 0])
-    ymin, ymax = np.amin(phasic_space[:, 1]), np.amax(phasic_space[:, 1])
-    zmin, zmax = np.amin(phasic_space[:, 2]), np.amax(phasic_space[:, 2])
-
-    xmaxr = int(np.ceil((xmax - xmin) / r)) * r + xmin
-    ymaxr = int(np.ceil((ymax - ymin) / r)) * r + ymin
-    zmaxr = int(np.ceil((zmax - zmin) / r)) * r + zmin
-
-    Ix = np.linspace(xmin, xmaxr, num=(xmaxr - xmin) // r, endpoint=True)
-    Iy = np.linspace(ymin, ymaxr, num=(ymaxr - ymin) // r, endpoint=True)
-    Iz = np.linspace(zmin, zmaxr, num=(zmaxr - zmin) // r, endpoint=True)
-
-    X, Y, Z = np.meshgrid(Ix, Iy, Iz)
-    #coord = {X[i],Y[i],Z[i]: for i in range(len(X))}
-    coord = {str(i): Xi for i, Xi in enumerate([X.flatten(), Y.flatten(), Z.flatten()])}
-    df = pd.DataFrame.from_dict(coord)
-    points = df.values
-    return points
-
-
-def count_points(points, surface, d):
-    Ix = 
-    count = 0
-    for p in points:
-        if np.any(np.linalg.norm(surface - p, np.inf) < d):
-            count += 1
-    return count
-
-
-def n_r(r, f, h, n):
+def get_phasic_space(f, h, n):
     I = np.linspace(-1., 1., num=5, endpoint=True)
     q0x, q0y, q0z = np.meshgrid(I, I, I)
     q0x = q0x.flatten()
@@ -160,22 +113,80 @@ def n_r(r, f, h, n):
         q, _ = explicit_euler([q01, q02, q03], f, h, n)
         phasic_space = np.concatenate((phasic_space, q), axis=0)
 
-    points_r = get_points(phasic_space, r)
-    c1 = count_points(points_r, phasic_space, r/2)
-    points_r = get_points(phasic_space, r/2)
-    c2 = count_points(points_r, phasic_space, r/4)
-    return np.array([c1, c2])
+    return phasic_space
+
+# si ui == R =>
+# sum{ui^d} = R^d*sum_i{1} = R^d * N(R)
+# [N(R)] => check
 
 
-if __name__ == "__main__":
-    setup()
+def get_index_side(kx, x, x0, h):
+    if x0 + (kx + 0.5) * h >= x:
+        return kx
+    else:
+        return kx + 1
+
+
+def get_index_subcube(p, init, h):
+    idx = []
+    for x, x0 in zip(p, init):
+        k = int(np.floor((x - x0) / h))
+        idx.append(get_index_side(k, x, x0, h))
+    return np.array(idx)
+
+
+def count_points(surface, init, h):
+    idx_set = set([])
+    for p in surface:
+        idx = get_index_subcube(p, init, h)
+        idx_set.add(tuple(idx))
+    return len(idx_set)
+
+
+def n_r(r, phasic_space):
+    init = [np.amin(phasic_space[:,0]), np.amin(phasic_space[:,1]), np.amin(phasic_space[:,2])]
+    return count_points(phasic_space, init, r)
+
+
+def hausdorff(p1, p2, i, j):
+    if abs(i-j) < eps():
+        return (i+j)/2
+    r1, nr1 = p1
+    r2, nr2 = p2
+    d = (i+j)/2
+    a = nr1 * (r1**d)
+    b = nr2 * (r2**d)
+    print("Vamos por:", i, j, d, "y obtenemos",a, b)
+    # sucesion creciente => infinito
+    if  eps() < b - a:
+        return hausdorff(p1, p2, d, j)
+    # sucesion decreciente
+    elif a - b > eps():
+        return hausdorff(p1, p2, i, d)
+    else:
+        return d
+
+
+
+def exercise4():
     a = 10
     b = 28
     c = 8 / 3
     f = lambda q: derivate(q, a, b, c)
-    h = 10 ** -3
+    h = 10 ** -4
     n = int(32 / h)
+    r = 10**-1
+    phasic_space = get_phasic_space(f, h, n)
+    nr1 = n_r(r, phasic_space)
+    nr2 = n_r(r/2, phasic_space)
+    print(r, nr1, r / 2, nr2)
+    hd = hausdorff((r, nr1), (r/2, nr2), 1, 3)
+
+    print("La dimension de hausdorff es:" + f'{hd:.3f}')
+
+
+if __name__ == "__main__":
+    setup()
     # exercise1_2()
     # exercise3()
-    eneerre = n_r(1, f, h, n)
-    print(eneerre)
+    exercise4()
