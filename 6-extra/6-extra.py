@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.integrate import odeint
 import pandas as pd
 from mpl_toolkits.mplot3d import axes3d
 from scipy.integrate import simps
@@ -14,7 +15,7 @@ def setup():
 
 
 def eps():
-    return 10**-8
+    return 10**-5
 
 
 def derivate(q, a, b, c):
@@ -97,20 +98,22 @@ def exercise3():
     fig3.savefig("(Q3,P3).png")
 
 
-def get_phasic_space(f, h, n):
+def get_phasic_space(f, t):
     I = np.linspace(-1., 1., num=5, endpoint=True)
     q0x, q0y, q0z = np.meshgrid(I, I, I)
     q0x = q0x.flatten()
     q0y = q0y.flatten()
     q0z = q0z.flatten()
 
-    q, _ = explicit_euler([q0x[0], q0y[0], q0z[0]], f, h, n)
+    # q, _ = explicit_euler([q0x[0], q0y[0], q0z[0]], f, h, n)
+    q = odeint(f,[q0x[0], q0y[0], q0z[0]],t)
     phasic_space = q
     q0x = np.delete(q0x, 0)
     q0y = np.delete(q0y, 0)
     q0z = np.delete(q0z, 0)
     for q01, q02, q03 in zip(q0x, q0y, q0z):
-        q, _ = explicit_euler([q01, q02, q03], f, h, n)
+        # q, _ = explicit_euler([q01, q02, q03], f, h, n)
+        q = odeint(f, [q01, q02, q03], t)
         phasic_space = np.concatenate((phasic_space, q), axis=0)
 
     return phasic_space
@@ -156,9 +159,9 @@ def hausdorff(p1, p2, i, j):
     d = (i+j)/2
     a = nr1 * (r1**d)
     b = nr2 * (r2**d)
-    print("Vamos por:", i, j, d, "y obtenemos",a, b)
+    # print("Vamos por:", i, j, d, "y obtenemos",a, b)
     # sucesion creciente => infinito
-    if  eps() < b - a:
+    if eps() < b - a:
         return hausdorff(p1, p2, d, j)
     # sucesion decreciente
     elif a - b > eps():
@@ -172,17 +175,24 @@ def exercise4():
     a = 10
     b = 28
     c = 8 / 3
-    f = lambda q: derivate(q, a, b, c)
-    h = 10 ** -4
-    n = int(32 / h)
-    r = 10**-1
-    phasic_space = get_phasic_space(f, h, n)
-    nr1 = n_r(r, phasic_space)
-    nr2 = n_r(r/2, phasic_space)
-    print(r, nr1, r / 2, nr2)
-    hd = hausdorff((r, nr1), (r/2, nr2), 1, 3)
+    f = lambda q,t: derivate(q, a, b, c)
+    t = np.arange(0.0, 40.0, 10**-4)
+    phasic_space = get_phasic_space(f,t)
+    rs = [2**(-i+1) for i in range(5)]
+    nr1 = n_r(2, phasic_space)
+    nr = [nr1]
+    hds = []
+    for r in rs:
+        nr2 = n_r(r/2, phasic_space)
+        hd = hausdorff((r, nr1), (r/2, nr2), 1, 3)
 
-    print("La dimension de hausdorff es:" + f'{hd:.3f}')
+        nr.append(nr2)
+        hds.append(hd)
+
+        print("La dimension de hausdorff para r=" + str(r) + " es: " + str(hd))
+        nr1 = nr2
+
+    print("Los distintos nr son : " + str(nr))
 
 
 if __name__ == "__main__":
