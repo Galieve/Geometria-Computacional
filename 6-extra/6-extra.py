@@ -197,6 +197,6 @@ def exercise4():
 
 if __name__ == "__main__":
     setup()
-    # exercise1_2()
-    # exercise3()
+    exercise1_2()
+    exercise3()
     exercise4()
