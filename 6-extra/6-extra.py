@@ -170,36 +170,6 @@ def n_r(r, phasic_space):
     init = [np.amin(phasic_space[:,0]), np.amin(phasic_space[:,1]), np.amin(phasic_space[:,2])]
     return count_points(phasic_space, init, r)
 
-# DEPRECATED: No hace falta hacer busqueda,
-# se puede sacar de forma constante
-# Forma alternativa: para cada dimension, encontramos
-# en que t del segmento pasamos de un indice de cubo a otro.
-# Este metodo utiliza busqueda binaria para localizar todos estos
-# puntos a la vez.
-# def generate_cube_index(t0,t1,k0,k1,x0,x1,x2,h, dim):
-#     # Si k0 == k1, no hay transicion entre cubos,
-#     # y por tanto, devolvemos la lista vacia
-#     if k0 == k1:
-#         return []
-#
-#     # Caso base: hay transicion entre t0 y t1
-#     # y estos se encuentran muy proximos entre si.
-#     # Devolvemos el tiempo, la dimension, y el valor de k
-#     # en el extremo derecho.
-#     if t1 - t0 < eps():
-#         return [(t0, dim, k1)]
-#
-#     # Hallamos el punto medio y generamos el indice
-#     # del cubo al que pertenece
-#     tmitad = (t0 + t1)/2
-#     xmitad = tmitad*x2+(1-tmitad)*x1
-#     kmitad = get_index_side(int(np.floor((xmitad - x0) / h)),xmitad,x0,h)
-#
-#     # Buscamos en las dos mitades
-#     idx = generate_cube_index(t0, tmitad, k0, kmitad, x0, x1, x2, h, dim)
-#     idx.extend(generate_cube_index(tmitad, t1, kmitad, k1, x0, x1, x2, h, dim))
-#     return idx
-
 # Generamos la lista de t_i de tal forma que para cada t_i
 # el indice asociado a la coordenada i-esima del cubo cambia
 def generate_cube_index(k1,k2,x0,x1,x2,h,dim_init):
